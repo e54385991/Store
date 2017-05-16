@@ -37,6 +37,7 @@ new g_cvarSkinDelay = -1;
 new bool:g_bTForcedSkin = false;
 new bool:g_bCTForcedSkin = false;
 
+
 #if defined STANDALONE_BUILD
 public OnPluginStart()
 	#else
@@ -157,7 +158,6 @@ public PlayerSkins_Equip(client, id)
 	new m_iData = Store_GetDataIndex(id);
 	if(g_eCvars[g_cvarSkinChangeInstant][aCache] && IsPlayerAlive(client) && GetClientTeam(client)==g_ePlayerSkins[m_iData][iTeam])
 	{
-		
 		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][iSkin]);
 	}
 	else
@@ -189,24 +189,26 @@ public void ArmsFix_OnModelSafe(int client)
 {
 	if(client <= 0 || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
 		return;
-	
-	new Float:Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
-	
+	float Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
 	if(Delay < 0)
 		PlayerSkins_PlayerSpawnPost(INVALID_HANDLE, GetClientUserId(client));
-	else
-	CreateTimer(Delay, PlayerSkins_PlayerSpawnPost, GetClientUserId(client));
+	else CreateTimer(Delay, PlayerSkins_PlayerSpawnPost, GetClientUserId(client));
+	
 	
 }
 
 public void ArmsFix_OnArmsSafe(int client)
 {
-	Timer_SetARMS(INVALID_HANDLE, client);
+	float Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
+	if(Delay < 0)
+		Timer_SetARMS(INVALID_HANDLE, GetClientUserId(client));
+	else CreateTimer(Delay, Timer_SetARMS, GetClientUserId(client));
 }
 
 
-public Action Timer_SetARMS(Handle timer, any client)
+public Action Timer_SetARMS(Handle timer, any userid)
 {
+	int client = GetClientOfUserId(userid);
 	if(client <= 0 || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
 		return;
 	
@@ -228,8 +230,8 @@ public Action Timer_SetARMS(Handle timer, any client)
 		if(g_ePlayerSkins[m_iData][szArms][0]!=0)
 		{
 			SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
-			
-			new Float:Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
+			float Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
+
 			if(Delay > 0)
 			{	
 				CreateTimer(0.15, RemoveItemTimer, EntIndexToEntRef(client), TIMER_FLAG_NO_MAPCHANGE);
