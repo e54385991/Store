@@ -70,7 +70,7 @@ public Plugin myinfo = {
 }
 
 public void OnPluginStart() {
-	g_bZombieMode = (FindPluginByFile("zombiereloadedtest.smx")==INVALID_HANDLE?false:true);
+	g_bZombieMode = (FindPluginByFile("zombiereloaded.smx")==null?false:true);
 	HookEvent("player_spawn", Event_PlayerSpawn);
 	OnConfigsExecuted();
 }
