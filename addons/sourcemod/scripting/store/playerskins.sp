@@ -335,7 +335,7 @@ public Action RemoveItemTimer(Handle timer ,any ref)
 		{
 			RemovePlayerItem(client, item);
 			
-			Handle ph=CreateDataPack();
+			DataPack ph=CreateDataPack();
 			WritePackCell(ph, EntIndexToEntRef(client));
 			WritePackCell(ph, EntIndexToEntRef(item));
 			CreateTimer(0.15 , AddItemTimer, ph, TIMER_FLAG_NO_MAPCHANGE);
@@ -343,7 +343,7 @@ public Action RemoveItemTimer(Handle timer ,any ref)
 	}
 }
 
-public Action AddItemTimer(Handle timer ,any ph)
+public Action AddItemTimer(Handle timer ,DataPack ph)
 { 
 	int client, item;
 	
@@ -356,4 +356,5 @@ public Action AddItemTimer(Handle timer ,any ph)
 	{
 		EquipPlayerWeapon(client, item);
 	}
+	delete ph;
 }
