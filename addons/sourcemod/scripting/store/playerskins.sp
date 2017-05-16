@@ -190,9 +190,6 @@ public void ArmsFix_OnModelSafe(int client)
 	if(!IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
 		return;
 	
-	if(!IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
-		return;
-	
 	new Float:Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
 	
 	if(Delay < 0)
