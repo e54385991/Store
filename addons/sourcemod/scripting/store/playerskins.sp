@@ -5,6 +5,8 @@
 #include <store>
 #include <zephstocks>
 
+#include <n_arm_fix>
+
 new GAME_TF2 = false;
 #endif
 
@@ -37,33 +39,33 @@ new bool:g_bCTForcedSkin = false;
 
 #if defined STANDALONE_BUILD
 public OnPluginStart()
-#else
+	#else
 public PlayerSkins_OnPluginStart()
-#endif
+	#endif
 {
-#if defined STANDALONE_BUILD
+	#if defined STANDALONE_BUILD
 	new String:m_szGameDir[32];
 	GetGameFolderName(m_szGameDir, sizeof(m_szGameDir));
 	
 	if(strcmp(m_szGameDir, "tf")==0)
 		GAME_TF2 = true;
-		
+	
 	LoadTranslations("store.phrases");
-#endif
+	#endif
 	
 	Store_RegisterHandler("playerskin", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, true);
 	Store_RegisterHandler("playerskin_temp", "model", PlayerSkins_OnMapStart, PlayerSkins_Reset, PlayerSkins_Config, PlayerSkins_Equip, PlayerSkins_Remove, false);
-
+	
 	g_cvarSkinChangeInstant = RegisterConVar("sm_store_playerskin_instant", "0", "Defines whether the skin should be changed instantly or on next spawn.", TYPE_INT);
 	g_cvarSkinForceChange = RegisterConVar("sm_store_playerskin_force_default", "0", "If it's set to 1, default skins will be enforced.", TYPE_INT);
 	g_cvarSkinForceChangeCT = RegisterConVar("sm_store_playerskin_default_ct", "", "Path of the default CT skin.", TYPE_STRING);
 	g_cvarSkinForceChangeT = RegisterConVar("sm_store_playerskin_default_t", "", "Path of the default T skin.", TYPE_STRING);
 	g_cvarSkinDelay = RegisterConVar("sm_store_playerskin_delay", "-1", "Delay after spawn before applying the skin. -1 means no delay", TYPE_FLOAT);
 	
-	HookEvent("player_spawn", PlayerSkins_PlayerSpawn);
+	//HookEvent("player_spawn", PlayerSkins_PlayerSpawn);
 	HookEvent("player_death", PlayerSkins_PlayerDeath);
-
-	g_bZombieMode = (FindPluginByFile("zombiereloaded")==INVALID_HANDLE?false:true);
+	
+	g_bZombieMode = (FindPluginByFile("zombiereloaded.smx")==INVALID_HANDLE?false:true);
 }
 
 #if defined STANDALONE_BUILD
@@ -80,14 +82,14 @@ public PlayerSkins_OnMapStart()
 	{
 		g_ePlayerSkins[i][nModelIndex] = PrecacheModel2(g_ePlayerSkins[i][szModel], true);
 		Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szModel]);
-
+		
 		if(g_ePlayerSkins[i][szArms][0]!=0)
 		{
 			PrecacheModel2(g_ePlayerSkins[i][szArms], true);
 			Downloader_AddFileToDownloadsTable(g_ePlayerSkins[i][szArms]);
 		}
 	}
-
+	
 	if(g_eCvars[g_cvarSkinForceChangeT][sCache][0] != 0 && (FileExists(g_eCvars[g_cvarSkinForceChangeT][sCache]) || FileExists(g_eCvars[g_cvarSkinForceChangeT][sCache], true)))
 	{
 		g_bTForcedSkin = true;
@@ -95,8 +97,8 @@ public PlayerSkins_OnMapStart()
 		Downloader_AddFileToDownloadsTable(g_eCvars[g_cvarSkinForceChangeT][sCache]);
 	}
 	else
-		g_bTForcedSkin = false;
-		
+	g_bTForcedSkin = false;
+	
 	if(g_eCvars[g_cvarSkinForceChangeCT][sCache][0] != 0 && (FileExists(g_eCvars[g_cvarSkinForceChangeCT][sCache]) || FileExists(g_eCvars[g_cvarSkinForceChangeCT][sCache], true)))
 	{
 		g_bCTForcedSkin = true;
@@ -109,9 +111,9 @@ public PlayerSkins_OnMapStart()
 
 #if defined STANDALONE_BUILD
 public OnLibraryAdded(const String:name[])
-#else
+	#else
 public PlayerSkins_OnLibraryAdded(const String:name[])
-#endif
+	#endif
 {
 	if(strcmp(name, "zombiereloaded")==0)
 		g_bZombieMode = true;
@@ -119,9 +121,9 @@ public PlayerSkins_OnLibraryAdded(const String:name[])
 
 #if defined STANDALONE_BUILD
 public OnClientConnected(client)
-#else
+	#else
 public PlayerSkins_OnClientConnected(client)
-#endif
+	#endif
 {
 	g_iTempSkins[client] = -1;
 }
@@ -162,7 +164,7 @@ public PlayerSkins_Equip(client, id)
 	{
 		if(Store_IsClientLoaded(client))
 			Chat(client, "%t", "PlayerSkins Settings Changed");
-
+		
 		if(g_ePlayerSkins[m_iData][bTemporary])
 		{
 			g_iTempSkins[client] = m_iData;
@@ -179,30 +181,41 @@ public PlayerSkins_Remove(client, id)
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
 
-public Action:PlayerSkins_PlayerSpawn(Handle:event,const String:name[],bool:dontBroadcast)
+
+
+
+
+public void ArmsFix_OnModelSafe(int client)
 {
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if(!IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
-		return Plugin_Continue;
-			
+		return;
+	
+	if(!IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
+		return;
+	
 	new Float:Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
-
-	if(Delay < 0 && g_bZombieMode)
-		Delay = 2.0;
-
+	
 	if(Delay < 0)
 		PlayerSkins_PlayerSpawnPost(INVALID_HANDLE, GetClientUserId(client));
 	else
-		CreateTimer(Delay, PlayerSkins_PlayerSpawnPost, GetClientUserId(client));
-
-	return Plugin_Continue;
+	CreateTimer(Delay, PlayerSkins_PlayerSpawnPost, GetClientUserId(client));
+	
 }
 
-public Action:PlayerSkins_PlayerSpawnPost(Handle:timer, any:userid)
+public void ArmsFix_OnArmsSafe(int client)
 {
-	new client = GetClientOfUserId(userid);
-	if(!client)
-		return Plugin_Stop;
+	Timer_SetARMS(INVALID_HANDLE, client);
+}
+
+
+public Action Timer_SetARMS(Handle timer, any client)
+{
+	if(client <= 0 || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
+		return;
+	
+	if(g_bZombieMode)
+		if(ZR_IsClientZombie(client))
+			return;
 		
 	new m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 	if(m_iEquipped < 0)
@@ -213,8 +226,65 @@ public Action:PlayerSkins_PlayerSpawnPost(Handle:timer, any:userid)
 		if(g_iTempSkins[client]>=0)
 			m_iData = g_iTempSkins[client];
 		else
-			m_iData = Store_GetDataIndex(m_iEquipped);
-		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][iSkin], g_ePlayerSkins[m_iData][szArms]);
+		m_iData = Store_GetDataIndex(m_iEquipped);
+		
+		if(g_ePlayerSkins[m_iData][szArms][0]!=0)
+		{
+			SetEntPropString(client, Prop_Send, "m_szArmsModel", g_ePlayerSkins[m_iData][szArms]);
+			
+			new Float:Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
+			if(Delay > 0)
+			{	
+				CreateTimer(0.15, RemoveItemTimer, EntIndexToEntRef(client), TIMER_FLAG_NO_MAPCHANGE);
+			}
+			
+		}
+	}
+	
+}
+
+
+
+
+
+/*
+public Action:PlayerSkins_PlayerSpawn(Handle:event,const String:name[],bool:dontBroadcast)
+{
+new client = GetClientOfUserId(GetEventInt(event, "userid"));
+if(!IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
+	return Plugin_Continue;
+
+new Float:Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
+
+if(Delay < 0 && g_bZombieMode)
+	Delay = 2.0;
+
+if(Delay < 0)
+	PlayerSkins_PlayerSpawnPost(INVALID_HANDLE, GetClientUserId(client));
+else
+CreateTimer(Delay, PlayerSkins_PlayerSpawnPost, GetClientUserId(client));
+
+return Plugin_Continue;
+}
+*/
+
+public Action:PlayerSkins_PlayerSpawnPost(Handle:timer, any:userid)
+{
+	new client = GetClientOfUserId(userid);
+	if(!client)
+		return Plugin_Stop;
+	
+	new m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
+	if(m_iEquipped < 0)
+		m_iEquipped = Store_GetEquippedItem(client, "playerskin", GetClientTeam(client)-2);
+	if(m_iEquipped >= 0 || g_iTempSkins[client] >= 0)
+	{
+		decl m_iData;
+		if(g_iTempSkins[client]>=0)
+			m_iData = g_iTempSkins[client];
+		else
+		m_iData = Store_GetDataIndex(m_iEquipped);
+		Store_SetClientModel(client, g_ePlayerSkins[m_iData][szModel], g_ePlayerSkins[m_iData][iSkin]);
 	}
 	else if(g_eCvars[g_cvarSkinForceChange][aCache])
 	{
@@ -227,12 +297,12 @@ public Action:PlayerSkins_PlayerSpawnPost(Handle:timer, any:userid)
 	return Plugin_Stop;
 }
 
-Store_SetClientModel(client, const String:model[], const skin=0, const String:arms[]="")
+Store_SetClientModel(client, const String:model[], const skin=0)
 {
 	if(g_bZombieMode)
 		if(ZR_IsClientZombie(client))
 			return;
-
+		
 	if(GAME_TF2)
 	{
 		SetVariantString(model);
@@ -242,13 +312,9 @@ Store_SetClientModel(client, const String:model[], const skin=0, const String:ar
 	{
 		SetEntityModel(client, model);
 	}
-
+	
 	SetEntProp(client, Prop_Send, "m_nSkin", skin);
-
-	if(GAME_CSGO & arms[0]!=0)
-	{
-		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
-	}
+	
 }
 
 public Action:PlayerSkins_PlayerDeath(Handle:event,const String:name[],bool:dontBroadcast)
@@ -256,4 +322,41 @@ public Action:PlayerSkins_PlayerDeath(Handle:event,const String:name[],bool:dont
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	g_iTempSkins[client] = -1;
 	return Plugin_Continue;
+}
+
+
+
+public Action RemoveItemTimer(Handle timer ,any ref)
+{
+	int client = EntRefToEntIndex(ref);
+	
+	if (client != INVALID_ENT_REFERENCE)
+	{
+		int item = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		
+		if (item > 0)
+		{
+			RemovePlayerItem(client, item);
+			
+			Handle ph=CreateDataPack();
+			WritePackCell(ph, EntIndexToEntRef(client));
+			WritePackCell(ph, EntIndexToEntRef(item));
+			CreateTimer(0.15 , AddItemTimer, ph, TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+}
+
+public Action AddItemTimer(Handle timer ,any ph)
+{ 
+	int client, item;
+	
+	ResetPack(ph);
+	
+	client = EntRefToEntIndex(ReadPackCell(ph));
+	item = EntRefToEntIndex(ReadPackCell(ph));
+	
+	if (client != INVALID_ENT_REFERENCE && item != INVALID_ENT_REFERENCE)
+	{
+		EquipPlayerWeapon(client, item);
+	}
 }
