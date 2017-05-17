@@ -403,6 +403,8 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	MarkNativeAsOptional("ZR_SelectClientClass");
 	MarkNativeAsOptional("HideTrails_ShouldHide");
 	MarkNativeAsOptional("Hidetracers_ShouldHide");
+	MarkNativeAsOptional("IsPlayerInTP");
+	MarkNativeAsOptional("TogglePlayerTP");
 #endif
 	return APLRes_Success;
 } 
