@@ -24,7 +24,7 @@
 Handle armsHandle;
 Handle modelHandle;
 bool g_bZombieMode = false;
-native bool ZR_IsClientZombie(int client);
+//native bool ZR_IsClientZombie(int client);
 
 char defaultCTFbiModels[][] = {
 	"ctm_fbi.mdl",
@@ -109,18 +109,11 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 	
 	if(g_bZombieMode)
 	{
-		/*
-		if(ZR_IsClientZombie){
-			return;
-		}
-		*/
-		
 		SetDefault(client);
 		CallForwards(client);
 		return;
 	}
-	
-	if(Store_IsClientLoaded(client))
+	else if(Store_IsClientLoaded(client))
 	{
 		int m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 		if(m_iEquipped < 0)
