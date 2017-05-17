@@ -95,7 +95,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("ArmsFix_SetDefaults", Native_SetDefault);
 	CreateNative("ArmsFix_HasDefaultArms", Native_HasDefaultArms);
 	
-	MarkNativeAsOptional("ZR_IsClientZombie");
+	//MarkNativeAsOptional("ZR_IsClientZombie");
 	
 	
 	return APLRes_Success;
