@@ -402,6 +402,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	MarkNativeAsOptional("ZR_GetClassByName");
 	MarkNativeAsOptional("ZR_SelectClientClass");
 	MarkNativeAsOptional("HideTrails_ShouldHide");
+	MarkNativeAsOptional("Hidetracers_ShouldHide");
 #endif
 	return APLRes_Success;
 } 
