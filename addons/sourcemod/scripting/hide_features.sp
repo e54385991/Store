@@ -28,7 +28,7 @@ public Action cTracer(int client, int args)
 
 public Action cTrail(int client, int args)
 {
-	g_HideTrails[client] = 0;
+	g_HideTrails[client] = 1;
 }
 
 
