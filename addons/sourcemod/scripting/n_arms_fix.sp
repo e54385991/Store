@@ -24,6 +24,8 @@
 Handle armsHandle;
 Handle modelHandle;
 bool g_bZombieMode = false;
+native bool ZR_IsClientZombie(int client);
+
 char defaultCTFbiModels[][] = {
 	"ctm_fbi.mdl",
 	"ctm_fbi_variantA.mdl",
@@ -93,6 +95,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("ArmsFix_SetDefaults", Native_SetDefault);
 	CreateNative("ArmsFix_HasDefaultArms", Native_HasDefaultArms);
 	
+	MarkNativeAsOptional("ZR_IsClientZombie");
 	
 	
 	return APLRes_Success;
@@ -106,6 +109,12 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 	
 	if(g_bZombieMode)
 	{
+		/*
+		if(ZR_IsClientZombie){
+			return;
+		}
+		*/
+		
 		SetDefault(client);
 		CallForwards(client);
 		return;

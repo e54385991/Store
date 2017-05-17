@@ -7,6 +7,7 @@
 
 new bool:GAME_TF2 = false;
 #endif
+#include <hidetracers>
 
 new g_cvarTracerMaterial = -1;
 new g_cvarTracerLife = -1;
@@ -95,8 +96,47 @@ public Action:Tracers_BulletImpact(Handle:event,const String:name[],bool:dontBro
 		m_fImpact[2] = GetEventFloat(event, "z");
 		
 		TE_SetupBeamPoints(m_fOrigin, m_fImpact, g_iBeam, 0, 0, 0, Float:g_eCvars[g_cvarTracerLife][aCache], Float:g_eCvars[g_cvarTracerWidth][aCache], Float:g_eCvars[g_cvarTracerWidth][aCache], 1, 0.0, g_aColors[idx], 0);
-		TE_SendToAll();
+		//TE_SendToAll();
+		Custom_TE_SendToAllEx(client);
 	}
 
 	return Plugin_Continue;
 }
+
+
+Custom_TE_SendToAllEx(int player = 0,float delay=0.0)
+{
+	int total = 0;
+	int[] clients = new int[MaxClients];
+	for (int i=1; i<=MaxClients; i++)
+	{
+		if (IsClientInGame(i) && !ShouldHideTracers(i))
+		{
+			clients[total++] = i;
+		}
+		else if (IsClientInGame(i) && player > 0 && ShouldHideTracers(i) && i == player)
+		{
+			clients[total++] = i;
+		}
+		
+	}
+	TE_Send(clients, total, delay);
+}
+
+
+stock ShouldHideTracers(client)
+{
+	static Available = -1;
+	if(Available==-1)
+		Available = GetFeatureStatus(FeatureType_Native, "Hidetracers_ShouldHide")==FeatureStatus_Available?1:0;
+	
+	if(Available == 1)
+	{
+		return Hidetracers_ShouldHide(client);
+	}
+	return 0;
+}
+
+
+
+
