@@ -1,9 +1,9 @@
-#if defined _hidetrails_included
+#if defined _hidetracers_included
   #endinput
 #endif
-#define _hidetrails_included
+#define _hidetracers_included
 
- native HideTrails_ShouldHide(client);
+ native Hidetracers_ShouldHide(client);
  
 /**
 Shared plugin information
@@ -19,7 +19,7 @@ public SharedPlugin:_pl_hidetracers =
 #endif
 };
 
-public _pl_hidetrails_SetNTVOptional()
+public _pl_hidetracers_SetNTVOptional()
 {
-	MarkNativeAsOptional("HideTrails_ShouldHide");
+	MarkNativeAsOptional("Hidetracers_ShouldHide");
 }
