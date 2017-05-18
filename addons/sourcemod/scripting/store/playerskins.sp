@@ -202,11 +202,11 @@ public Action Timer_SetARMS(Handle timer, any userid)
 {
 	int client = GetClientOfUserId(userid);
 	if(client <= 0 || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
-		return;
+		return Plugin_Stop;
 	
 	if(g_bZombieMode)
 		if(ZR_IsClientZombie(client))
-			return;
+			return Plugin_Stop;
 		
 	new m_iEquipped = Store_GetEquippedItem(client, "playerskin", 2);
 	if(m_iEquipped < 0)
@@ -230,6 +230,7 @@ public Action Timer_SetARMS(Handle timer, any userid)
 			}
 		}
 	}
+	return Plugin_Stop;
 }
 
 /*
@@ -309,10 +310,7 @@ public Action:PlayerSkins_PlayerDeath(Handle:event,const String:name[],bool:dont
 {
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	g_iTempSkins[client] = -1;
-	return Plugin_Continue;
 }
-
-
 
 public Action RemoveItemTimer(Handle timer ,any ref)
 {
