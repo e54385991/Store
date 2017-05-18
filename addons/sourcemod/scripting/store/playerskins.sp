@@ -181,20 +181,12 @@ public PlayerSkins_Remove(client, id)
 	return g_ePlayerSkins[Store_GetDataIndex(id)][iTeam]-2;
 }
 
-
-
-
-
 public void ArmsFix_OnModelSafe(int client)
 {
-	if(client <= 0 || !IsClientInGame(client) || !IsPlayerAlive(client) || !(2<=GetClientTeam(client)<=3))
-		return;
 	float Delay = Float:g_eCvars[g_cvarSkinDelay][aCache];
 	if(Delay < 0)
 		PlayerSkins_PlayerSpawnPost(INVALID_HANDLE, GetClientUserId(client));
 	else CreateTimer(Delay, PlayerSkins_PlayerSpawnPost, GetClientUserId(client));
-	
-	
 }
 
 public void ArmsFix_OnArmsSafe(int client)
@@ -236,15 +228,9 @@ public Action Timer_SetARMS(Handle timer, any userid)
 			{	
 				CreateTimer(0.15, RemoveItemTimer, EntIndexToEntRef(client), TIMER_FLAG_NO_MAPCHANGE);
 			}
-			
 		}
 	}
-	
 }
-
-
-
-
 
 /*
 public Action:PlayerSkins_PlayerSpawn(Handle:event,const String:name[],bool:dontBroadcast)
